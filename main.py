@@ -4,6 +4,7 @@ import bs4
 import xmltodict
 import time
 
+
 def get_page(url, max_retries=10, sleep_time_seconds=3, **kwargs):
     resp = req.get(url, **kwargs)
     i = 1
@@ -29,8 +30,11 @@ class ParseXML(celery.Task):
         else:
             publishDTInEIS = None
         print(f'{xml_url}-{publishDTInEIS}')
+
+
 class ParsePage(celery.Task):
-    name='ParsePage'
+    name = 'ParsePage'
+
     def run(self, page: int):
         base_url = 'https://zakupki.gov.ru/epz/order/extendedsearch/results.html'
 
@@ -46,6 +50,7 @@ class ParsePage(celery.Task):
 
 #if __name__ == '__main__':
 app = celery.Celery('Parsing', broker='amqp://localhost')
+app.conf['task_always_eager'] = True
 app.register_task(ParsePage())
 app.register_task(ParseXML())
 for page_number in range(1,3):
